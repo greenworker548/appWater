@@ -31,11 +31,11 @@
     <main class="main">
         <section>
             <h2>Общий прогресс:</h2>
-            <p><span class="current-value">0</span>/<span class="day-value">2000</span> ml.</p>
+            <p><span class="current-value">--"--</span>/<span class="day-value">--"--</span> ml.</p>
         </section>
         <section>
             <h2>Выбор тары:</h2>
-            <select>
+            <select class="select-value">
                 <option value="150">150 ml.</option>
                 <option value="200" selected>200 ml.</option>
                 <option value="250">250 ml.</option>
@@ -43,8 +43,9 @@
             </select>
         </section>
         <section>
-            <h2>Кнопка пополнения:</h2>
+            <h2>Кнопки управления:</h2>
             <button type="button" class="increment-value">Пополнить</button>
+            <button type="button" class="reset-value">Обнулить</button>
         </section>
         <section>
             <h2>История пополнения:</h2>
