@@ -1,100 +1,101 @@
-// начальный объект значений
-const initialData = {
+// Хранилище данных состояния
+const state = {
     currentValue: 0,
-    dayValue: 0
+    dayValue: 0,
+    history: []
+};
+
+// DOM элементы
+const dom = {
+    currentValueNode: document.querySelector(".current-value"),
+    dayValueNode: document.querySelector(".day-value"),
+    buttonAddValueNode: document.querySelector(".increment-value"),
+    buttonResetValueNode: document.querySelector(".reset-value"),
+    selectValueNode: document.querySelector(".select-value"),
+    listHistoryNode: document.querySelector(".history-value"),
+    historyTemplate: document.querySelector("template").content.querySelector(".history-item")
+};
+
+// Функция обновления DOM
+function updateUI() {
+    dom.currentValueNode.textContent = state.currentValue;
+    dom.dayValueNode.textContent = state.dayValue;
+    renderHistory();
 }
 
-// начальный массив истории пополнения
-const intialHistoryData = []
-
-// узлы из DOM дерева
-const currentValueNode = document.querySelector(".current-value")
-const dayValueNode = document.querySelector(".day-value")
-const buttonAddValueNode = document.querySelector(".increment-value")
-const buttonResetValueNode = document.querySelector(".reset-value")
-const selectValueNode = document.querySelector(".select-value")
-const template = document.querySelector("template")
-const listHistoryNode = document.querySelector(".history-value")
-const listHistoryItemNode = template.content.querySelector(".history-item")
-
-// рендер вставки цифр в узлы
-function render(data) {
-    currentValueNode.textContent = data.currentValue
-    dayValueNode.textContent = data.dayValue
+// Рендер истории
+function renderHistory() {
+    dom.listHistoryNode.innerHTML = ""; // Очистка списка
+    state.history.forEach(item => {
+        const listElem = dom.historyTemplate.cloneNode(true);
+        listElem.textContent = item;
+        dom.listHistoryNode.append(listElem);
+    });
 }
 
-// функция запроса значений с сервера и заполнения локального хранилища значений
-// так же получение данных от пользователя, если дневная норма пустая
-async function renderData() {
-    const response = await fetch("http://localhost:3000/water")
-    const data = await response.json()
+// Получение данных с сервера
+async function fetchData() {
+    try {
+        const response = await fetch("http://localhost:3000/water");
+        const [data] = await response.json();
 
-    initialData.currentValue = data[0].currentValueWater
+        state.currentValue = data.currentValueWater;
+        if (data.valueWaterDay === 0) {
+            state.dayValue = getUserDayValue();
+            await updateDataOnServer();
+        } else {
+            state.dayValue = data.valueWaterDay;
+        }
 
-    if(data[0].valueWaterDay == 0) {
-        const userValue = +prompt("Введите дневную норму воды!")
-        initialData.dayValue = userValue
-        updateData(initialData.currentValue, initialData.dayValue)
-    } else {
-        initialData.dayValue = data[0].valueWaterDay
+        updateUI();
+    } catch (error) {
+        console.error("Ошибка загрузки данных:", error);
     }
-
-    render(initialData)
 }
 
-function renderHistiryData() {
-    intialHistoryData.map((item) => {
-        const listElem = listHistoryItemNode.cloneNode(true)
-        listElem.textContent = item
-
-        listHistoryNode.append(listElem)
-    })
+// Запрос дневной нормы от пользователя
+function getUserDayValue() {
+    return +prompt("Введите дневную норму воды!") || 0;
 }
 
-// функция отправления POST запроса для обновления значений на сервере
-function updateData(newCurrentValue, newDayWalue) {
-    fetch("http://localhost:3000/water/1", {
-        method: "PUT",
-        body: JSON.stringify({
-            "id": 1,
-            "currentValueWater": newCurrentValue,
-            "valueWaterDay": newDayWalue
-        })
-    })
+// Обновление данных на сервере
+async function updateDataOnServer() {
+    try {
+        await fetch("http://localhost:3000/water/1", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: 1,
+                currentValueWater: state.currentValue,
+                valueWaterDay: state.dayValue
+            })
+        });
+    } catch (error) {
+        console.error("Ошибка обновления данных на сервере:", error);
+    }
 }
 
-// функция рендера локала при изменении и запуска обновления сервера
-function addValueWater() {
-    const selectValue = +selectValueNode.value
-    const dataValue = initialData.currentValue
-    const sumValue = dataValue + selectValue
-
-    initialData.currentValue = sumValue
-    
-    updateData(sumValue, initialData.dayValue)
-
-    writeHistryItem()
-    renderHistiryData()
-
-    render(initialData)
+// Добавление воды
+function addWaterValue() {
+    const increment = +dom.selectValueNode.value || 0;
+    state.currentValue += increment;
+    state.history.push(new Date().toLocaleTimeString());
+    updateDataOnServer();
+    updateUI();
 }
 
-// функция обнуления значения дневной нормы
+// Сброс текущего значения
 function resetCurrentValue() {
-    initialData.currentValue = 0
-    
-    updateData(0, initialData.dayValue)
-
-    render(initialData)
+    state.currentValue = 0;
+    updateDataOnServer();
+    updateUI();
 }
 
-function writeHistryItem() {
-    const time = new Date()
-
-    intialHistoryData.push(time)
+// Обработчики событий
+function setupEventListeners() {
+    document.addEventListener("DOMContentLoaded", fetchData);
+    dom.buttonAddValueNode.addEventListener("click", addWaterValue);
+    dom.buttonResetValueNode.addEventListener("click", resetCurrentValue);
 }
 
-// обработчики событий
-document.addEventListener("DOMContentLoaded", renderData)
-buttonAddValueNode.addEventListener("click", addValueWater)
-buttonResetValueNode.addEventListener("click", resetCurrentValue)
+setupEventListeners();
