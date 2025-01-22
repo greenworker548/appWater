@@ -1,24 +1,14 @@
-.grid-test {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 100px 100px;
-    gap: 20px;
+body {
+    max-width: 1000px;
+    margin: 0 auto;
 
-    background-color: bisque;
-
-    border: 1px solid #111;
+    text-align: center;
 }
 
-.grid-test div {
-    /* width: 200px;
-    height: 200px; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+header h1 {
+    color: tomato;
+}
 
-    color: cadetblue;
-
-    background-color: tomato;
-
-    border: 1px solid #111;
+.footer p sub {
+    color: darkgray;
 }

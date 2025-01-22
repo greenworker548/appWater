@@ -6,23 +6,6 @@
     <title>App Wather</title>
 
     <link rel="stylesheet" href="./css/style.css">
-
-    <style>
-        body {
-            max-width: 1000px;
-            margin: 0 auto;
-
-            text-align: center;
-        }
-
-        header h1 {
-            color: tomato;
-        }
-
-        .footer p sub {
-            color: darkgray;
-        }
-    </style>
 </head>
 <body>
     <header class="header">
@@ -49,16 +32,18 @@
         </section>
         <section>
             <h2>История пополнения:</h2>
-            <ul>
-                <li>Время: 12.07.2025, Количество: 250 ml.</li>
-                <li>Время: 12.07.2025, Количество: 250 ml.</li>
-                <li>Время: 12.07.2025, Количество: 250 ml.</li>
+            <ul class="history-value">
+                <p>Нет пополнений</p>
             </ul>
         </section>
     </main>
     <footer class="footer">
         <p><sub>Все права защищены</sub></p>
     </footer>
+
+    <template>
+        <li class="history-item">Время: 12.07.2025, Количество: 250 ml.</li>
+    </template>
 
     <script src="./index.js"></script>
 </body>
